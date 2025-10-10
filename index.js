@@ -31,6 +31,10 @@ function main() {
 		spinnerApiPredict,
 	} = ui;
 
+	labelPrediction.innerText
+	labelPredictionVariance.innerText
+	labelPredictionMeanVariance.innerText
+
 	// Set the minimum date for today
 	inputDate.value =
 		inputDate.min = new Date().toISOString().split('T')[0];
@@ -68,7 +72,7 @@ function main() {
 			then(
 				response => {
 					if (!response.ok) {
-						console.error(`${response.status}: ${response.statusText}`);
+						api.onPredictErr(`${response.status}: ${response.statusText}`);
 						return;
 					}
 					response.json().
@@ -77,22 +81,22 @@ function main() {
 							err => api.onPredict(null, err),
 						)
 				},
-				err => console.error('fetch failed:', err)
+				err => api.onPredictErr(`fetch failed: ${JSON.stringify(err)}`)
 			).
 			finally(() => apiPredictLoad(true));
 	};
 	api.onPredict = (resJson, err) => {
 		console.log(resJson, err);
 		if (err) {
-			console.error(`${JSON.stringify(err)}`);
+			api.onPredictErr(`${JSON.stringify(err)}`);
 			return;
 		}
 		if (!resJson) {
-			console.error('no response');
+			api.onPredictErr('no response');
 			return;
 		}
 		if (!resJson.data) {
-			console.error('"data" is undefined');
+			api.onPredictErr('"data" is undefined');
 			return;
 		}
 		const {
@@ -103,5 +107,11 @@ function main() {
 		labelPrediction.innerText = prediction;
 		labelPredictionVariance.innerText = prediction_variance;
 		labelPredictionMeanVariance.innerText = prediction_mean_variance;
+	};
+	api.onPredictErr = (errMsg) => {
+		labelPrediction.innerText = '-';
+		labelPredictionVariance.innerText = '-';
+		labelPredictionMeanVariance.innerText = '-';
+		console.error(errMsg);
 	};
 }
