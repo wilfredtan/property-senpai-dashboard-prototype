@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Property Senpai</title>
+	<script type="text/javascript" src="index.js"></script>
+	<link rel="stylesheet" href="index.css">
+</head>
+
+<body onload="main()">
+	<h1>🚧 Property Senpai Dashboard (WIP) 🚧</h1>
+	<!--
+		town
+		storey_range
+		floor_area_sqm
+		age
+		date
+	-->
+	<div>
+		<h2>Input Parameters</h2>
+		<label for="town">Town:</label>
+		<select id="inputTown" name="town" value="BEDOK"></select><br /><br />
+		<label for="storeyRange">Storey Range:</label>
+		<input type="number" id="inputStoreyRange" name="storeyRange" min="0" value="0"><br /><br />
+		<label for="floorAreaSqm">Floor Area (sqm):</label>
+		<input type="number" id="inputFloorAreaSqm" name="floorAreaSqm" min="1" value="1"><br /><br />
+		<label for="age">Age:</label>
+		<input type="number" id="inputAge" name="age" min="0" value="0"><br /><br />
+		<label for="date">Date:</label>
+		<input type="date" id="inputDate" name="date"><br /><br />
+		<button id="buttonApiPredict" onclick="api.predict()">Predict</button>
+		<div id="spinnerApiPredict" class="api-spinner"></div>
+	</div>
+	<h2>Output Result</h2>
+	<table class="grid-container-kv">
+		<tr>
+			<th>Prediction</th>
+			<th>Prediction Variance</th>
+			<th>Prediction Variance (Mean)</th>
+		</tr>
+		<tr>
+			<td id="labelPrediction">some value</td>
+			<td id="labelPredictionVariance">some value</td>
+			<td id="labelPredictionMeanVariance">some value</td>
+		</tr>
+	</table>
+</body>
+
+</html>
