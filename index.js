@@ -1,43 +1,51 @@
 const api = {
 	BASE_URL: 'https://ehlnvmqocwvq3all6bvxgjwqoi0ktuxx.lambda-url.ap-southeast-1.on.aws',
 };
-const ui = {
-	inputTown: null,
-	inputStoreyRange: null,
-	inputFloorAreaSqm: null,
-	inputAge: null,
-	inputDate: null,
-	labelPrediction: null,
-	labelPredictionVariance: null,
-	labelPredictionMeanVariance: null,
-	buttonApiPredict: null,
-	spinnerApiPredict: null,
-};
+
+/**
+ * @returns {{string: HTMLElement | null}}
+ */
+function _initUI() {
+	const uiIDList = [
+		'inputTown',
+		'inputStoreyRange',
+		'inputAreaSqFt',
+		'inputAge',
+		'inputYear',
+		'inputMonth',
+		'labelPredictedPrice',
+		'buttonApiPredict',
+		'spinnerApiPredict',
+	];
+	const uiMap = {};
+	for (const id of uiIDList) {
+		uiMap[id] = document.getElementById(id);
+		if (!uiMap[id]) {
+			console.error(`Element id "${id}" not found`)
+			continue;
+		}
+	}
+	return uiMap;
+}
 
 function main() {
-	for (const key of Object.keys(ui)) {
-		ui[key] = document.getElementById(key);
-	}
 	const {
 		inputTown,
 		inputStoreyRange,
-		inputFloorAreaSqm,
+		inputAreaSqFt,
 		inputAge,
-		inputDate,
-		labelPrediction,
-		labelPredictionVariance,
-		labelPredictionMeanVariance,
+		inputYear,
+		inputMonth,
+		labelPredictedPrice,
 		buttonApiPredict,
 		spinnerApiPredict,
-	} = ui;
+	} = _initUI();
 
-	labelPrediction.innerText
-	labelPredictionVariance.innerText
-	labelPredictionMeanVariance.innerText
-
-	// Set the minimum date for today
-	inputDate.value =
-		inputDate.min = new Date().toISOString().split('T')[0];
+	// Set the minimum year and month for today
+	const dateChunks = new Date().toISOString().split('-');
+	inputYear.value =
+		inputYear.min = dateChunks[0];
+	inputMonth.value = dateChunks[1];
 
 	// Initialize the sample input options
 	for (const townStr of ['ANG MO KIO', 'BEDOK', 'JURONG EAST', 'WOODLANDS', 'YISHUN']) {
@@ -53,13 +61,24 @@ function main() {
 	};
 
 	api.predict = () => {
+		/*
+		Request interface:
+			town
+			storey_range
+			age
+			area_sqft
+			month
+			year
+		*/
 		const predictReq = {
 			'town': inputTown.value,
 			'storey_range': Number.parseInt(inputStoreyRange.value),
-			'floor_area_sqm': Number.parseInt(inputFloorAreaSqm.value),
 			'age': Number.parseInt(inputAge.value),
-			'date': inputDate.value
+			'area_sqft': Number.parseInt(inputAreaSqFt.value),
+			'month': Number.parseInt(inputMonth.value),
+			'year': Number.parseInt(inputYear.value),
 		};
+		console.log(predictReq);
 
 		const request = new Request(`${api.BASE_URL}/predict`, {
 			method: 'POST',
@@ -95,23 +114,17 @@ function main() {
 			api.onPredictErr('no response');
 			return;
 		}
-		if (!resJson.data) {
-			api.onPredictErr('"data" is undefined');
-			return;
-		}
+		/*
+		Response interface:
+			predicted_price
+		*/
 		const {
-			prediction,
-			prediction_mean_variance,
-			prediction_variance,
-		} = resJson.data;
-		labelPrediction.innerText = prediction;
-		labelPredictionVariance.innerText = prediction_variance;
-		labelPredictionMeanVariance.innerText = prediction_mean_variance;
+			predicted_price,
+		} = resJson;
+		labelPredictedPrice.innerText = Math.floor(predicted_price);
 	};
 	api.onPredictErr = (errMsg) => {
-		labelPrediction.innerText = '-';
-		labelPredictionVariance.innerText = '-';
-		labelPredictionMeanVariance.innerText = '-';
+		labelPredictedPrice.innerText = '-';
 		console.error(errMsg);
 	};
 }
